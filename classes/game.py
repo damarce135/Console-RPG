@@ -80,6 +80,46 @@ class Person:
             print("         " + str(i) + "." + item["item"].name, ":", item["item"].description, " (x" + str(item["quantity"]) + ")")
             i += 1
 
+    def choose_target(self, enemies):
+        i = 1
+
+        print("\n" + Bcolors.FAIL + Bcolors.BOLD + "    TARGET:" + Bcolors.ENDC)
+        for enemy in enemies:
+            if enemy.get_hp() != 0:
+                print("        " + str(i) + ".", enemy.name)
+                i += 1
+        choice = int(input("    Choose target:")) - 1
+        return choice
+
+    def get_enemy_stats(self):
+        hp_bar = ""
+        bar_ticks = (self.hp / self.maxhp) * 100 / 2
+
+        while bar_ticks > 0:
+            hp_bar += "|"
+            bar_ticks -= 1
+
+        while len(hp_bar) < 50:
+            hp_bar += " "
+
+        hp_string = str(self.hp) + "/" + str(self.maxhp)
+        current_hp = ""
+
+        if len(hp_string) < 11:
+            decreased = 11 - len(hp_string)
+
+            while decreased > 0:
+                current_hp += " "
+                decreased -= 1
+
+            current_hp += hp_string
+        else:
+            current_hp = hp_string
+
+        print("                     __________________________________________________  ")
+        print(Bcolors.BOLD + self.name + ": " +
+              current_hp + "  |" + Bcolors.BOLD + Bcolors.FAIL + hp_bar + Bcolors.ENDC + "|")
+
     def get_stats(self):
         hp_bar = ""
         bar_ticks = (self.hp / self.maxhp) * 100 / 4
@@ -130,5 +170,15 @@ class Person:
 
         print("                     _________________________                __________  ")
         print(Bcolors.BOLD + self.name + "   " +
-              hp_string + "  |" + Bcolors.BOLD + Bcolors.OKGREEN + hp_bar + Bcolors.ENDC + "|     " +
-              mp_string + "  |" + Bcolors.BOLD + Bcolors.OKBLUE + mp_bar + Bcolors.ENDC + "|")
+              current_hp + "  |" + Bcolors.BOLD + Bcolors.OKGREEN + hp_bar + Bcolors.ENDC + "|     " +
+              current_mp + "  |" + Bcolors.BOLD + Bcolors.OKBLUE + mp_bar + Bcolors.ENDC + "|")
+
+    def choose_enemy_spell(self):
+        magic_choice = random.randrange(0, len(self.magic))
+        spell = self.magic[magic_choice]
+        magic_dmg = spell.generate_damage()
+
+        if self.mp < spell.cost:
+            self.choose_enemy_spell()
+        else:
+            return spell, magic_dmg
